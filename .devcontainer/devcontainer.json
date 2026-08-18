@@ -1,0 +1,21 @@
+{
+  "name": "Java Spring Boot with MySQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/DevWeb-Java-Ecommerce",
+  "shutdownAction": "none",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "vscjava.vscode-java-pack",
+    "springbootextensionpack.vscode-spring-boot",
+    "mysql-and-mariadb.vscode-mysql-mariadb"
+  ],
+  "forwardPorts": [3306, 8080],
+  "postCreateCommand": "mvn dependency:go-offline",
+  "postStartCommand": "echo \"Dev container is ready. Use 'mvn spring-boot:run' to start the application.\"",
+  "remoteEnv": {
+    "SPRING_PROFILES_ACTIVE": "dev"
+  }
+}
