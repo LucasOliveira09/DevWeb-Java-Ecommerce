@@ -1,21 +1,50 @@
 {
-  "name": "Java Spring Boot with MySQL",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "app",
-  "workspaceFolder": "/workspaces/DevWeb-Java-Ecommerce",
-  "shutdownAction": "none",
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
+  // Nome do ambiente que aparece na lista de containers do VS Code
+  // (Command Palette -> Dev Containers: Reopen in Container).
+  "name": "E-Commerce Backend",
+
+  // Indica qual Dockerfile o VS Code deve usar para CRIAR a imagem.
+  // O Dockerfile fica nesta mesma pasta (.devcontainer/Dockerfile).
+  "build": {
+    "dockerfile": "Dockerfile"
   },
-  "extensions": [
-    "vscjava.vscode-java-pack",
-    "springbootextensionpack.vscode-spring-boot",
-    "mysql-and-mariadb.vscode-mysql-mariadb"
-  ],
-  "forwardPorts": [3306, 8080],
-  "postCreateCommand": "mvn dependency:go-offline",
-  "postStartCommand": "echo \"Dev container is ready. Use 'mvn spring-boot:run' to start the application.\"",
-  "remoteEnv": {
-    "SPRING_PROFILES_ACTIVE": "dev"
-  }
+
+  // Abre as portas do container no computador do programador (host):
+  //   8080 -> API Spring Boot (testar no navegador)
+  //   3306 -> MySQL (conectar com Workbench/DBeaver)
+  // Sem isso, o programador precisaria configurar "Port Forwarding" na mão.
+  "forwardPorts": [8080, 3306],
+
+  "customizations": {
+    "vscode": {
+      // Extensões instaladas automaticamente no VS Code.
+      // O java-pack já traz: Java Language Server, Debugger, Maven, Lombok, ...
+      "extensions": [
+        "ms-azuretools.vscode-docker",        // gerenciar containers/imagens
+        "vscjava.vscode-java-pack",           // suporte completo a Java
+        "vmware.vscode-spring-boot",          // atalhos/validação do Spring Boot
+        "vscjava.vscode-spring-boot-dashboard", // dashboard de apps Spring Boot
+        "cweijan.vscode-mysql-client2"        // rodar SQL sem sair do VS Code
+      ],
+
+      "settings": {
+        // Tema e tamanho de fonte: conforto visual (didático, padroniza a turma).
+        "workbench.colorTheme": "Dark Modern",
+        "editor.fontSize": 20,
+        "terminal.integrated.fontSize": 20,
+
+        // Força o Java Language Server a iniciar no modo Standard.
+        // Sem isso o Debug (Run/Debug Java) fica bloqueado no modo LightWeight.
+        "java.server.launchMode": "Standard"
+      }
+    }
+  },
+
+  // Roda UMA vez, na CRIAÇÃO do container:
+  // sobe o MySQL e cria o banco "ecommerce" + usuário da aplicação.
+  "postCreateCommand": "/bin/bash .devcontainer/init-mysql.sh",
+
+  // Roda em TODO START do container: garante o MySQL ligado.
+  // É um "no-op" se o MySQL já estiver rodando, então pode repetir à vontade.
+  "postStartCommand": "service mysql start"
 }

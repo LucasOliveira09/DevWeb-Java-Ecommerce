@@ -1,28 +1,45 @@
 #!/bin/bash
+
+# "fail-fast": se qualquer comando der erro, o script para na hora.
 set -e
 
-echo "Waiting for MySQL to be ready..."
-# Wait for MySQL to accept connections
-for i in {1..30}; do
-  if mysqladmin ping -h"localhost" -P"3306" -uroot -proot --silent; then
-    echo "MySQL is ready!"
-    break
-  fi
-  echo "MySQL not ready yet... ($i/30)"
-  sleep 1
+# Inicia o servidor MySQL (o "service" lê o script /etc/init.d/mysql).
+echo "Iniciando MySQL..."
+service mysql start
+
+# O comando acima retorna antes do MySQL aceitar conexões.
+# Fica tentando até o servidor responder (máx. 30 tentativas de 1s).
+# O "mysqladmin ping" é o "ping" no servidor: se responder, o loop para.
+# O "sleep 1" espera 1s antes de tentar de novo.
+echo "Aguardando MySQL ficar pronto..."
+for tentativa in $(seq 1 30); do
+    if mysqladmin ping --silent; then
+        echo "MySQL pronto."
+        break
+    fi
+    sleep 1
 done
 
-# If we've tried 30 times and still not ready, exit with error
-if ! mysqladmin ping -h"localhost" -P"3306" -uroot -proot --silent; then
-  echo "Error: MySQL did not become ready in time."
-  exit 1
+# Se passou das 30 tentativas sem resposta, para o script com erro.
+if ! mysqladmin ping --silent; then
+    echo "Erro: MySQL não respondeu a tempo." >&2
+    exit 1
 fi
 
-echo "Creating admin user..."
-mysql -h"localhost" -P"3306" -uroot -proot <<-EOSQL
-  CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'admin123';
-  GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;
-  FLUSH PRIVILEGES;
-EOSQL
+# Cria o banco e o usuário que a aplicação Spring Boot vai usar.
+echo "Configurando banco..."
 
-echo "Admin user created successfully."
+# O "mysql <<EOF" envia os comandos abaixo direto para o MySQL.
+mysql <<EOF
+CREATE DATABASE IF NOT EXISTS ecommerce
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'sergio'@'%' IDENTIFIED BY '123@Mudar';
+
+GRANT ALL PRIVILEGES ON ecommerce.* TO 'sergio'@'%';
+
+FLUSH PRIVILEGES;
+EOF
+
+echo "MySQL configurado com sucesso!"
