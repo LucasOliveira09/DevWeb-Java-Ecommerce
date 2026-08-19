@@ -1,7 +1,7 @@
 {
   // Nome do ambiente que aparece na lista de containers do VS Code
   // (Command Palette -> Dev Containers: Reopen in Container).
-  "name": "E-Commerce Backend",
+  "name": "Projeto",
 
   // Indica qual Dockerfile o VS Code deve usar para CRIAR a imagem.
   // O Dockerfile fica nesta mesma pasta (.devcontainer/Dockerfile).
@@ -24,7 +24,8 @@
         "vscjava.vscode-java-pack",           // suporte completo a Java
         "vmware.vscode-spring-boot",          // atalhos/validação do Spring Boot
         "vscjava.vscode-spring-boot-dashboard", // dashboard de apps Spring Boot
-        "cweijan.vscode-mysql-client2"        // rodar SQL sem sair do VS Code
+        "cweijan.vscode-mysql-client2",        // rodar SQL sem sair do VS Code
+        "vscjava.vscode-spring-initializr"    // inicializador de projetos Spring
       ],
 
       "settings": {
